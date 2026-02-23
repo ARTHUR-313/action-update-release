@@ -18,13 +18,25 @@ jobs:
       - name: Check output
         shell: bash
         run: |
-          read -r README_sum < <(sha256sum README.md)
-          read -r action_sum < <(sha256sum src/action_update_release.py)
-          readarray -t asset_sums < <(curl -L -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/zckv/action-update-release/releases/286913097/assets | jq '.[] | .digest')
-          if [[ ! *" $README_sum "* == " ${asset_sums[*]} " ]]; then
+          api="https://api.github.com/repos/zckv/action-update-release"
+          read -r README_sum < <(sha256sum README.md | cut -d ' ' -f1)
+          read -r action_sum < <(sha256sum src/action_update_release.py | cut -d ' ' -f1)
+          README_sum="sha256:$README_sum"
+          action_sum="sha256:$action_sum"
+          echo "Expected README.md sum: $README_sum"
+          echo "Expected src/action_update_release.py sum: $action_sum"
+          readarray -t asset_sums < <(curl -sL \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$api/releases/286913097/assets" \
+            | jq -r '.[] | .digest'
+          )
+          echo "Asset sums: ${asset_sums[*]}"
+          if [[ ! " ${asset_sums[*]} " == *" $README_sum "* ]]; then
             echo "README.md was not uploaded correctly"
             exit 1
-          elif [[ ! *" $action_sum "* == " ${asset_sums[*]} " ]]; then
+          elif [[ ! " ${asset_sums[*]} " == *" $action_sum "* ]]; then
             echo "src/action_update_release.py was not uploaded correctly"
             exit 1
           fi
