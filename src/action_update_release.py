@@ -126,12 +126,13 @@ class Updater:
             "Authorization": f"Bearer {self.token}",
             "Accept": "application/json",
             "X-GitHub-Api-Version": "2022-11-28",
+            "Content-Type": "application/octet-stream",
         }
 
         with path.open("rb") as f:
-            files = {"file": f}
+            data = f.read()
             response = requests.post(
-                f"{upload_url}?name={path.name}", headers=headers, files=files
+                f"{upload_url}?name={path.name}", headers=headers, data=data
             )
 
         match response.status_code:
