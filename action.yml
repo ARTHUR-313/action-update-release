@@ -34,7 +34,8 @@ runs:
         if ! command -v poetry &> /dev/null
         then
           echo "poetry could not be found, installing it..."
-          poetry export -f requirements.txt --dev | poetry run -- pip install -r /dev/stdin
+          poetry export -f requirements.txt > requirements.txt
+          python -m pip install -r requirements.txt
           export PATH="$HOME/.local/bin:$PATH"
         else
           echo "poetry is already installed"
