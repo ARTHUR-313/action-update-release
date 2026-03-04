@@ -25,8 +25,6 @@ inputs:
       Default to current working directory.
     default: ${{ github.workspace }}
     required: true
-  pipx-packages:
-    default: ""
 runs:
   using: "composite"
   steps:
@@ -36,7 +34,9 @@ runs:
         if ! command -v poetry &> /dev/null
         then
           echo "poetry could not be found, installing it..."
-          pipx install poetry==2.3.2
+          python3 -m venv $VENV_PATH
+          $VENV_PATH/bin/pip install -U pip setuptools
+          $VENV_PATH/bin/pip install poetry
           export PATH="$HOME/.local/bin:$PATH"
         else
           echo "poetry is already installed"
