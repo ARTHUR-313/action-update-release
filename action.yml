@@ -34,9 +34,9 @@ runs:
         if ! command -v poetry &> /dev/null
         then
           echo "poetry could not be found, installing it..."
-          python3 -m venv $VENV_PATH
-          $VENV_PATH/bin/pip install -U pip setuptools
-          $VENV_PATH/bin/pip install poetry
+          export POETRY_HOME=/opt/poetry
+          python3 install-poetry.py --version 2.3.2
+          $POETRY_HOME/bin/poetry --version
           export PATH="$HOME/.local/bin:$PATH"
         else
           echo "poetry is already installed"
